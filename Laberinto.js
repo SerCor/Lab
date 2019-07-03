@@ -5,10 +5,14 @@ class Laberinto{
     constructor( dimension,reference_point = [0,0],dimension3D = false ){
         this.reference_point = reference_point;
         this.dimension = dimension;
-        this.init_point_x  = reference_point[0] + Math.random() * (dimension[0]-5);
+        this.init_point  = [reference_point[0] + Math.random() * dimension[0],reference_point[1] ];
+        /* Margin 5*/
+        if( this.init_point[0] >= this.reference_point[0]-5)
+            this.init_point[0] -= 5;
+        
+        this.end_point = []; // The definition of end point is in the generateLabyrinth function 
         this.dimension3D = dimension3D;
         this.generateLabyrinth();
-        
     }
 
     draw( scene, material = new THREE.LineBasicMaterial( { color: 0xffffff,linewidth: 3 } )){
@@ -19,7 +23,6 @@ class Laberinto{
         });
 
         /*Draw content */
-
 
 
     }
@@ -43,28 +46,34 @@ class Laberinto{
         /* Draw contour of Labyrinth */
         /* Bottom Line */ 
         geometry.vertices.push(new THREE.Vector3( this.reference_point[0],this.reference_point[1], VAL_Z));        
-        geometry.vertices.push(new THREE.Vector3( this.init_point_x , this.reference_point[1], VAL_Z));
+        geometry.vertices.push(new THREE.Vector3( this.init_point[0], this.reference_point[1], VAL_Z));
         this.contour.push(geometry);
 
         geometry = new THREE.Geometry();
-        geometry.vertices.push(new THREE.Vector3( this.init_point_x  + 5 ,this.reference_point[1], VAL_Z));   
+        geometry.vertices.push(new THREE.Vector3( this.init_point[0] + 5 ,this.reference_point[1], VAL_Z));   
         geometry.vertices.push(new THREE.Vector3( this.reference_point[0] + this.dimension[0] ,this.reference_point[1], VAL_Z));        
         this.contour.push(geometry);
 
         let side_of_end = Math.random() * 3;
+        /* Generate end point  */
+
+        this.end_point = [];
 
         /* Other Lines */
         if( side_of_end < 1)
-        {
+        {   
+            this.end_point = [this.reference_point[0],this.reference_point[1] + Math.random() * this.dimension[1]];
+            if( this.end_point[1] >= this.reference_point[1] + this.dimension[1] - 5)
+                this.end_point[1] -= 5;
+
             /* Side --> Left */
-            let end_point_y = this.reference_point[1] + Math.random() * (this.dimension[1]-2);
             geometry = new THREE.Geometry();
             geometry.vertices.push(new THREE.Vector3( this.reference_point[0] ,this.reference_point[1], VAL_Z));        
-            geometry.vertices.push(new THREE.Vector3( this.reference_point[0] ,end_point_y, VAL_Z));   
+            geometry.vertices.push(new THREE.Vector3( this.reference_point[0] ,this.end_point[1], VAL_Z));   
             this.contour.push(geometry);
 
             geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( this.reference_point[0] ,end_point_y + 2, VAL_Z));    
+            geometry.vertices.push(new THREE.Vector3( this.reference_point[0] ,this.end_point[1] + 2, VAL_Z));    
             geometry.vertices.push(new THREE.Vector3( this.reference_point[0] ,this.reference_point[1] + this.dimension[1], VAL_Z));   
             this.contour.push(geometry);
             
@@ -82,15 +91,18 @@ class Laberinto{
 
 
         }else if( side_of_end < 2){
+            this.end_point = [ this.reference_point[0] + Math.random() * (this.dimension[0]), this.reference_point[1]];
+            if( this.end_point[0] >= this.reference_point[0] + this.dimension[0] -5 )
+                this.end_point[0] -= 5;
+
             /* Side --> Top*/
-            let end_point_x = this.reference_point[0] + Math.random() * (this.dimension[0]-5);
             geometry = new THREE.Geometry();
             geometry.vertices.push(new THREE.Vector3( this.reference_point[0] ,this.reference_point[1] + this.dimension[1], VAL_Z));        
-            geometry.vertices.push(new THREE.Vector3( end_point_x ,this.reference_point[1] + this.dimension[1], VAL_Z));   
+            geometry.vertices.push(new THREE.Vector3( this.end_point[0] ,this.reference_point[1] + this.dimension[1], VAL_Z));   
             this.contour.push(geometry);
 
             geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( end_point_x + 5,this.reference_point[1] + this.dimension[1], VAL_Z));        
+            geometry.vertices.push(new THREE.Vector3( this.end_point[0] + 5,this.reference_point[1] + this.dimension[1], VAL_Z));        
             geometry.vertices.push(new THREE.Vector3( this.reference_point[0] + this.dimension[0],this.reference_point[1] + this.dimension[1], VAL_Z));   
             this.contour.push(geometry);
 
@@ -107,15 +119,18 @@ class Laberinto{
             this.contour.push(geometry);
 
         }else{
+            this.end_point = [this.reference_point[0] + this.dimension[0] , this.reference_point[1] + Math.random() * this.dimension[1]];
+            if( this.end_point[1] >= this.reference_point[1] + this.dimension[1] - 5)
+                this.end_point[1] -= 5;
+                
             /* Side --> Rigth */
-            let end_point_y = this.reference_point[1] + Math.random() * (this.dimension[1]-2);
             geometry = new THREE.Geometry();
             geometry.vertices.push(new THREE.Vector3( this.reference_point[0] + this.dimension[0]  ,this.reference_point[1] , VAL_Z))
-            geometry.vertices.push(new THREE.Vector3( this.reference_point[0] + this.dimension[0]  ,end_point_y, VAL_Z))
+            geometry.vertices.push(new THREE.Vector3( this.reference_point[0] + this.dimension[0]  ,this.end_point[1], VAL_Z))
             this.contour.push(geometry);
             
             geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( this.reference_point[0] + this.dimension[0]  , end_point_y + 2, VAL_Z))
+            geometry.vertices.push(new THREE.Vector3( this.reference_point[0] + this.dimension[0]  , this.end_point[1] + 2, VAL_Z))
             geometry.vertices.push(new THREE.Vector3( this.reference_point[0] + this.dimension[0]  , this.reference_point[1] + this.dimension[1], VAL_Z))
             this.contour.push(geometry);
 
