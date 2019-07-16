@@ -1,8 +1,8 @@
 
 const control_labyrinth = {
     /* Dimension of labyrinth */
-        width: 50,
-        heigth: 50,
+        width: 25,
+        heigth: 25,
     init : function(){
         /* Init space for three js, the timer time, and load the marked saved */
         

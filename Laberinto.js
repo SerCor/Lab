@@ -347,16 +347,17 @@ class Laberinto{
     
         // run prims algorithm until we create an MST
         // that contains every vertex from the graph
-        while (MST.length !== this.dimension.width * this.dimension.height -1) {
-            
+        while (MST.length < this.dimension.width * this.dimension.height -1) {
+
+
             // mark this vertex as visited
-            visited.push(nodo[0]+""+nodo[1]);
-       
-            
+            visited.push(nodo[0]+" "+nodo[1]);
+
             // add each edge to list of potential edges
             let len = this.matrix_wei[nodo[0]][nodo[1]].length;
             for (var r = 0; r < len ; r++) {
-                if(visited.indexOf(this.matrix_wei[nodo[0]][nodo[1]][r][0] + "" + this.matrix_wei[nodo[0]][nodo[1]][r][1]) == -1){
+                if(visited.indexOf(this.matrix_wei[nodo[0]][nodo[1]][r][0] + " " + this.matrix_wei[nodo[0]][nodo[1]][r][1]) == -1){
+                    // console.log("PUSH: "+ this.matrix_wei[nodo[0]][nodo[1]][r][0] + " " + this.matrix_wei[nodo[0]][nodo[1]][r][1]);
                     edges.push([[nodo[0],nodo[1]],this.matrix_wei[nodo[0]][nodo[1]][r]]); 
                 }
                 /* Two Arrays  First --> Origin Node[x,y]  Second ---> Final Node[x,y,weigth] */
@@ -366,18 +367,21 @@ class Laberinto{
             // that has not yet been visited
             for (var e = 0; e < edges.length; e++) {
                 // console.log(edges[1]);
-                if (edges[e][1][2] < minEdge[1][2] && visited.indexOf([edges[e][1][0],edges[e][1][1]]) == -1) {
+                if (edges[e][1][2] < minEdge[1][2] && visited.indexOf(edges[e][1][0]+" "+edges[e][1][1]) == -1) {
                     minEdge = edges[e];
                 }else{
                 }
             }
     
             // remove min weight edge from list of edges
+            // console.log("Antes: " + edges.length);
             edges.splice(edges.indexOf(minEdge), 1);
-    
+            // console.log("Despues: " + edges.length);
+            
             // push min edge to MST
             MST.push(minEdge);
-    
+            
+            // console.log(MST.length);
             // start at new vertex and reset min edge
 
             nodo = [minEdge[1][0],minEdge[1][1]];
@@ -385,7 +389,10 @@ class Laberinto{
         }
     
         this.path_lab = MST;
-        console.log(this.path_lab );
+        // console.log("MATRIZ DE PESO:");
+        // console.log(this.matrix_wei);
+        // console.log("Path:");
+        // console.log(this.path_lab );
     }
 
    
