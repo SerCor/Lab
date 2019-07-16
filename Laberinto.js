@@ -66,7 +66,7 @@ class Laberinto{
         for(let i = 0; i < this.path_lab.length; i++){
             geo = new THREE.Geometry();
             geo.vertices.push(new THREE.Vector3( this.reference_point.x + this.path_lab[i][0][1] /*Column-x*/, this.reference_point.y + this.path_lab[i][0][0]/*Row-y*/,this.VAL_Z));  
-            geo.vertices.push(new THREE.Vector3( this.reference_point.x + this.path_lab[i][1][0], this.reference_point.y + this.path_lab[i][1][0],this.VAL_Z));  
+            geo.vertices.push(new THREE.Vector3( this.reference_point.x + this.path_lab[i][1][1], this.reference_point.y + this.path_lab[i][1][0],this.VAL_Z));  
             scene.add(new THREE.Line( geo, material ))
         }
 
@@ -334,17 +334,15 @@ class Laberinto{
      prims( ) {
 
         // arbitrarily choose initial vertex from graph
-        let nodo = [0 /*Row*/,0/*Column*/];
+        let nodo = [0 ,0];/*Row*/ /*Column*/
     
+
         // initialize empty edges array and empty MST
         let MST = [];
         let edges = [];
         let minEdge = [null , [null,null, Infinity]];
         let visited = [];
-        console.log("INIT");
-        console.log(visited);
-        console.log("------");
-
+        
 
     
         // run prims algorithm until we create an MST
@@ -352,15 +350,15 @@ class Laberinto{
         while (MST.length !== this.dimension.width * this.dimension.height -1) {
             
             // mark this vertex as visited
-            visited.push(nodo);
-            console.log("visited:");
-            console.log(visited);
+            visited.push(nodo[0]+""+nodo[1]);
+       
             
             // add each edge to list of potential edges
             let len = this.matrix_wei[nodo[0]][nodo[1]].length;
             for (var r = 0; r < len ; r++) {
-                if(visited.indexOf([this.matrix_wei[nodo[0]][nodo[1]][r][0],this.matrix_wei[nodo[0]][nodo[1]][r][1]]) == -1)
+                if(visited.indexOf(this.matrix_wei[nodo[0]][nodo[1]][r][0] + "" + this.matrix_wei[nodo[0]][nodo[1]][r][1]) == -1){
                     edges.push([[nodo[0],nodo[1]],this.matrix_wei[nodo[0]][nodo[1]][r]]); 
+                }
                 /* Two Arrays  First --> Origin Node[x,y]  Second ---> Final Node[x,y,weigth] */
             }
     
