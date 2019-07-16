@@ -1,13 +1,13 @@
 
 const control_labyrinth = {
     /* Dimension of labyrinth */
-        width: 100,
-        heigth: 40,
+        width: 4,
+        heigth: 4,
     init : function(){
         /* Init space for three js, the timer time, and load the marked saved */
         
         let scene = new THREE.Scene();
-        let camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+        let camera = new THREE.PerspectiveCamera( 100, window.innerWidth/window.innerHeight, 0.1, 500 );
 
         let renderer = new THREE.WebGLRenderer();
         renderer.setSize( window.innerWidth, window.innerHeight );
