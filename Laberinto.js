@@ -2,7 +2,7 @@
 
 class Laberinto{
 
-    constructor( dimension,reference_point = [0,0],dimension3D = false ){
+    constructor( dimension,reference_point = [0,0],dimension3D = false,line_width = 10,scale = 1){
         this.reference_point = ({
             x:0,
             y:0
@@ -13,56 +13,51 @@ class Laberinto{
             width:0,
             height:0,
         });
+        this.line_width = line_width;
+        this.scale = scale;
 
         this.dimension.width = dimension[0];
         this.dimension.height = dimension[1]
 
-        this.init_point  = [this.reference_point.x+ Math.random() * this.dimension.width,this.reference_point.y ];
+        this.init_point  =  ({
+            x:0,
+            y:0
+        });
+        this.end_point  =  ({
+            x:0,
+            y:0
+        });
+        
+        
+        this.player_position = ({
+            x:this.init_point,
+            y:0
+        });
+        
         /* Margin 5*/
         if( this.init_point[0] >= this.reference_point.x-5)
             this.init_point[0] -= 5;
         
+        
+        
         this.end_point = []; // The definition of end point is in the generateLabyrinth function 
         this.dimension3D = dimension3D;
         this.generateLabyrinth();
-
-        this.prims();
-
-        // let m_weight = new Array( this.dimension.height );
-
-        // /* Generate random weigth */
-        // for( let i = 0; i < this.dimension.width; i++){
-        //     m_weight[i] = new Array(this.dimension.width);
-        //     for(let j = 0; j < this.dimension.width; j++)
-        //         m_weight[i][j] = Math.random() * 10;
-        // }
-
-        // this.graph = new Graph( m_weight);
-
     }
 
-    draw( scene, material = new THREE.LineBasicMaterial( { color: 0xffffff,linewidth: 3 } )){
+    draw( scene, materialContour = new THREE.LineBasicMaterial( { color: 0xffffff,linewidth: 3 }),material = new THREE.LineBasicMaterial( { color: 0x3f3f3f,linewidth: this.line_width })){
         
         /* Draw contour */
-        this.contour.forEach(element => {
-            scene.add(new THREE.Line( element, material ))
-        });
-
-        /*Draw content */
-        // for(let i = 0; i < this.matrix_wei.length ; i++){
-        //     for( let j = 0 ; j < this.matrix_wei[i].length ;j++){
-        //         let geo;
-        //         let list = this.matrix_wei[i][j];
-        //         for(let k = 0;k < list.length;k++){
-        //             geo = new THREE.Geometry();
-        //             geo.vertices.push(new THREE.Vector3( j+this.reference_point.x,this.reference_point.y+i, this.VAL_Z));  
-        //             geo.vertices.push(new THREE.Vector3( list[k][0],list[k][1], this.VAL_Z));  
-        //             scene.add(new THREE.Line( geo, material ))
-        //         }
-
-        //     }
-        // }
         let geo;
+        console.log(this.contour);
+        for(let i = 1; i < this.contour.length; i+=2){
+            geo = new THREE.Geometry();
+            geo.vertices.push(new THREE.Vector3( this.reference_point.x + this.contour[i][1] /*Column-x*/, this.reference_point.y + this.contour[i][0]/*Row-y*/,this.VAL_Z));  
+            geo.vertices.push(new THREE.Vector3( this.reference_point.x + this.contour[i-1][1], this.reference_point.y + this.contour[i-1][0],this.VAL_Z));  
+            scene.add(new THREE.Line( geo, materialContour ))
+        }
+
+        
         for(let i = 0; i < this.path_lab.length; i++){
             geo = new THREE.Geometry();
             geo.vertices.push(new THREE.Vector3( this.reference_point.x + this.path_lab[i][0][1] /*Column-x*/, this.reference_point.y + this.path_lab[i][0][0]/*Row-y*/,this.VAL_Z));  
@@ -86,8 +81,6 @@ class Laberinto{
     generateAdjacentNodes( posNode ){
         /** PARAM PosNode ---> Array [x --> Column,y ---> Row] */
 
-
-
         /* Genere the Adjacent Nodes of central node */
         let list = [];
         let i = 0 ;
@@ -104,8 +97,6 @@ class Laberinto{
                 weight = Math.random();
                 list.push([posNode[0]+1,posNode[1],weight]); //Top
                 this.matrix_wei[posNode[0]+1][posNode[1]].push([posNode[0],posNode[1],weight]); //Add the same value in the top node 
-
-                
 
             }else if( posNode[0] == this.dimension.height-1){
                 /* Is in the top contour */
@@ -201,111 +192,102 @@ class Laberinto{
 
         const VAL_Z = this.dimension3D == true? 5:0;
         this.contour = [];
-        this.content = [];
-        let geometry = new THREE.Geometry();
 
         /*  contour of Labyrinth */
-        /* Bottom Line */ 
-        geometry.vertices.push(new THREE.Vector3( this.reference_point.x,this.reference_point.y, VAL_Z));        
-        geometry.vertices.push(new THREE.Vector3( this.init_point[0], this.reference_point.y, VAL_Z));
-        this.contour.push(geometry);
+        this.init_point.x = Math.floor(Math.random() * this.dimension.width);
+        this.init_point.y = Math.floor(0);
+        /* Bottom Line */      
+        if( this.init_point.x == 0 )
+            this.init_point.x ++;
+        else if(this.init_point.x >= this.dimension.width-1)
+            this.init_point.x --;
+        
+        this.contour.push([-1,this.dimension.width ]);
+        this.contour.push([-1,this.init_point.x + 1]);
 
-        geometry = new THREE.Geometry();
-        geometry.vertices.push(new THREE.Vector3( this.init_point[0] + 5 ,this.reference_point.y, VAL_Z));   
-        geometry.vertices.push(new THREE.Vector3( this.reference_point.x+ this.dimension.width ,this.reference_point.y, VAL_Z));        
-        this.contour.push(geometry);
+        this.contour.push([-1,this.init_point.x -1]);
+        this.contour.push([-1,-1]);
+        
 
         let side_of_end = Math.random() * 3;
         /* Generate end point  */
 
-        this.end_point = [];
-
         /* Other Lines */
         if( side_of_end < 1)
         {   
-            this.end_point = [this.reference_point.x,this.reference_point.y + Math.random() * this.dimension.height];
-            if( this.end_point[1] >= this.reference_point.y + this.dimension.height - 5)
-                this.end_point[1] -= 5;
+            /*Define the end pont*/
+            this.end_point.x = 0;
+            this.end_point.y = Math.random() * this.dimension.height;
+
+            if( this.end_point.y >= this.dimension.height -1)
+                this.end_point.y --;
+            else if(this.end_point.y == 0)
+                this.end_point.y ++;
 
             /* Side --> Left */
-            geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x,this.reference_point.y, VAL_Z));        
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x,this.end_point[1], VAL_Z));   
-            this.contour.push(geometry);
+            this.contour.push([0-1,0-1]);
+            this.contour.push([this.end_point.y-1,this.end_point.x-1]);            
 
-            geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x,this.end_point[1] + 2, VAL_Z));    
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x,this.reference_point.y + this.dimension.height, VAL_Z));   
-            this.contour.push(geometry);
-            
+            this.contour.push([this.end_point.y+1,this.end_point.x-1]);            
+            this.contour.push([this.dimension.height,0-1]);            
+
             /* Others */
             /*Top*/
-            geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x,this.reference_point.y + this.dimension.height, VAL_Z));        
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x+ this.dimension.width,this.reference_point.y + this.dimension.height, VAL_Z));   
-            this.contour.push(geometry);
-            /*Rigth*/
-            geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x+ this.dimension.width  ,this.reference_point.y + this.dimension.height, VAL_Z))
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x+ this.dimension.width  ,this.reference_point.y , VAL_Z))
-            this.contour.push(geometry);
+            this.contour.push([this.dimension.height-1+1,-1]);        
+            this.contour.push([this.dimension.height-1+1,this.dimension.width]);  
 
+            /*Rigth*/
+            this.contour.push([this.dimension.height,this.dimension.width]);        
+            this.contour.push([0-1,this.dimension.width-1+1]);
 
         }else if( side_of_end < 2){
-            this.end_point = [ this.reference_point.x+ Math.random() * (this.dimension.width), this.reference_point.y];
-            if( this.end_point[0] >= this.reference_point.x+ this.dimension.width -5 )
-                this.end_point[0] -= 5;
+            this.end_point.x =  Math.random() * (this.dimension.width)
+            this.end_point.y =  0;
+            if( this.end_point.x >=  this.dimension.width -1 )
+                this.end_point.x --;
+            else if(this.end_point.x == 0)
+                this.end_point.x++;
 
             /* Side --> Top*/
-            geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x,this.reference_point.y + this.dimension.height, VAL_Z));        
-            geometry.vertices.push(new THREE.Vector3( this.end_point[0] ,this.reference_point.y + this.dimension.height, VAL_Z));   
-            this.contour.push(geometry);
+            this.contour.push([this.dimension.height-1+1,0-1]);        
+            this.contour.push([this.dimension.height-1+1,this.end_point.x-1]);        
 
-            geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( this.end_point[0] + 5,this.reference_point.y + this.dimension.height, VAL_Z));        
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x+ this.dimension.width,this.reference_point.y + this.dimension.height, VAL_Z));   
-            this.contour.push(geometry);
+            this.contour.push([this.dimension.height-1+1,this.end_point.x+1]);        
+            this.contour.push([this.dimension.height-1+1,this.dimension.width]);        
+
 
             /* Others */
             /*Rigth*/
-            geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x+ this.dimension.width  ,this.reference_point.y + this.dimension.height, VAL_Z))
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x+ this.dimension.width  ,this.reference_point.y , VAL_Z))
-            this.contour.push(geometry);
+            this.contour.push([this.dimension.height,this.dimension.width]);        
+            this.contour.push([0-1,this.dimension.width-1+1]);
+
             /*Left*/
-            geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x,this.reference_point.y, VAL_Z));        
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x,this.reference_point.y + this.dimension.height, VAL_Z));   
-            this.contour.push(geometry);
+            this.contour.push([0-1,0-1]);
+            this.contour.push([this.dimension.height,0-1]);
 
         }else{
-            this.end_point = [this.reference_point.x+ this.dimension.width , this.reference_point.y + Math.random() * this.dimension.height];
-            if( this.end_point[1] >= this.reference_point.y + this.dimension.height - 5)
-                this.end_point[1] -= 5;
+            this.end_point.x =  0;
+            this.end_point.y = Math.random() * this.dimension.height;
+            if( this.end_point.y >= this.dimension.height - 1)
+                this.end_point.y --;
+            if( this.end_point.y == 0)
+                this.end_point.y++;
 
             /* Side --> Rigth */
-            geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x+ this.dimension.width  ,this.reference_point.y , VAL_Z))
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x+ this.dimension.width  ,this.end_point[1], VAL_Z))
-            this.contour.push(geometry);
+            this.contour.push([this.dimension.height,this.dimension.width-1+1]);
+            this.contour.push([this.end_point.y+1,this.dimension.width-1+1]);
             
-            geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x+ this.dimension.width  , this.end_point[1] + 2, VAL_Z))
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x+ this.dimension.width  , this.reference_point.y + this.dimension.height, VAL_Z))
-            this.contour.push(geometry);
+            this.contour.push([this.end_point.y-1,this.dimension.width-1+1]);
+            this.contour.push([0-1,this.dimension.width-1+1]);
 
             /* Others */
             /*Left*/
-            geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x,this.reference_point.y, VAL_Z));        
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x,this.reference_point.y + this.dimension.height, VAL_Z));   
-            this.contour.push(geometry);
+            this.contour.push([0-1,0-1]);
+            this.contour.push([this.dimension.height,0-1]);
+
             /*Top*/
-            geometry = new THREE.Geometry();
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x,this.reference_point.y + this.dimension.height, VAL_Z));        
-            geometry.vertices.push(new THREE.Vector3( this.reference_point.x+ this.dimension.width,this.reference_point.y + this.dimension.height, VAL_Z));   
-            this.contour.push(geometry);
+            this.contour.push([this.dimension.height-1+1,-1]);        
+            this.contour.push([this.dimension.height-1+1,this.dimension.width]);  
 
         }
 
@@ -325,10 +307,7 @@ class Laberinto{
             }
         }
 
-
-
-
-
+        this.prims();
 
     }
      prims( ) {
