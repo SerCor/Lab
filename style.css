@@ -19,6 +19,18 @@ html {
       text-align: center;
   }
 
+  .button{
+    display: inline-block;
+    padding: 1rem;
+    text-transform: uppercase;
+    color: white;
+    background-color: chocolate;
+    border-radius: 1rem;
+    cursor: pointer;
+
+}
+
+
 /*Header */
 
 header{

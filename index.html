@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="style.css">
+    <script src="three3DExtras.min.js"></script>
     <script src="three.min.js"></script>
     <script src="graph.js"></script>
     <script src="Laberinto.js"></script>
@@ -15,7 +16,7 @@
 <body>
     <header>
         <div class="container">
-            <h1 class="center-text">  The best Labyrinth Game</h1>
+            <h1 class="center-text">The best Labyrinth Game</h1>
         </div>
     </header>
 
@@ -42,6 +43,19 @@
 
             </table>
         </aside>
+    </div>
+
+    <div class="container controls-container">
+        <div class="button" onclick="control_lab.runGame();">Iniciar/Reiniciar</div>
+
+        <div class="">
+            Tiempo <input id="timerContainer" type="text" value="0" disabled>
+            Intento <input id="tryContainer" type="text" value="0" disabled>
+        </div>
+
+        <div class="button" onclick="control_lab.reInit();">
+            Generate Other Labyrinth
+        </div>
     </div>
 
     <footer >

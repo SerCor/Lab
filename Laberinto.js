@@ -45,24 +45,19 @@ class Laberinto{
         this.generateLabyrinth();
     }
 
-    draw( scene, materialContour = new THREE.LineBasicMaterial( { color: 0xffffff,linewidth: 3 }),material = new THREE.LineBasicMaterial( { color: 0x3f3f3f,linewidth: this.line_width })){
+    draw( scene, contourColor = "#B02735",contourWidth =.30, pathColor = "#B02735",pathWidth=.30){
         
         /* Draw contour */
-        let geo;
-        console.log(this.contour);
+        var line ;
         for(let i = 1; i < this.contour.length; i+=2){
-            geo = new THREE.Geometry();
-            geo.vertices.push(new THREE.Vector3( this.reference_point.x + this.contour[i][1] /*Column-x*/, this.reference_point.y + this.contour[i][0]/*Row-y*/,this.VAL_Z));  
-            geo.vertices.push(new THREE.Vector3( this.reference_point.x + this.contour[i-1][1], this.reference_point.y + this.contour[i-1][0],this.VAL_Z));  
-            scene.add(new THREE.Line( geo, materialContour ))
+            line  = new three3DExtras.tubeLine([this.reference_point.x + this.contour[i][1] /*Column-x*/, this.reference_point.y + this.contour[i][0]/*Row-y*/,this.VAL_Z],[this.reference_point.x + this.contour[i-1][1], this.reference_point.y + this.contour[i-1][0],this.VAL_Z],contourWidth,contourColor);
+            scene.add(line.getObject3D());
         }
 
         
         for(let i = 0; i < this.path_lab.length; i++){
-            geo = new THREE.Geometry();
-            geo.vertices.push(new THREE.Vector3( this.reference_point.x + this.path_lab[i][0][1] /*Column-x*/, this.reference_point.y + this.path_lab[i][0][0]/*Row-y*/,this.VAL_Z));  
-            geo.vertices.push(new THREE.Vector3( this.reference_point.x + this.path_lab[i][1][1], this.reference_point.y + this.path_lab[i][1][0],this.VAL_Z));  
-            scene.add(new THREE.Line( geo, material ))
+            line  = new three3DExtras.tubeLine([this.reference_point.x + this.path_lab[i][0][1] /*Column-x*/, this.reference_point.y + this.path_lab[i][0][0]/*Row-y*/,this.VAL_Z],[this.reference_point.x + this.path_lab[i][1][1], this.reference_point.y + this.path_lab[i][1][0],this.VAL_Z],pathWidth,pathColor);
+            scene.add(line.getObject3D());
         }
 
         console.log("Fin de dibujado");
